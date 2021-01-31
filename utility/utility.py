@@ -13,8 +13,9 @@ def timer(name):
     yield
     LOGGER.info(f'[{name}] done in {time.time() - t0:.0f} s.')
 
-def init_logger(log_file=OUTPUT_DIR+'train.log'):
+def init_logger(OUTPUT_DIR = './'):
     from logging import getLogger, INFO, FileHandler,  Formatter,  StreamHandler
+    log_file=OUTPUT_DIR+'train.log'
     logger = getLogger(__name__)
     logger.setLevel(INFO)
     handler1 = StreamHandler()
