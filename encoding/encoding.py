@@ -88,10 +88,10 @@ def target_encoding(df, target, target_cols, folds):
         # 置換済みのカラムは不要なので削除
         test = test.drop(c,axis = 1)
     
-     #trainとtestを結合して復元する               
-     df = pd.concat([train_saved,test],axis = 0).reset_index(drop=True)
+    #trainとtestを結合して復元する               
+    df = pd.concat([train_saved,test],axis = 0).reset_index(drop=True)
                     
-     return df
+    return df
                   
 #numerical encoding
 
