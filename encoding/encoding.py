@@ -31,10 +31,7 @@ def freq_encoding(df, freq_cols):
     return df
 
 #Target Encoding
-#Foldの設定
 from sklearn.model_selection import KFold
-
-# ターゲットエンコーディング
 def target_encoding(df, target, target_cols, folds):
   
     #trainとtestに分割  
@@ -98,7 +95,7 @@ def target_encoding(df, target, target_cols, folds):
                   
 #numerical encoding
 
-#Auto-Scaling
+#auto-scaling
 from sklearn.preprocessing import StandardScaler
 def auto_scaling(df, auto_cols):
     #一時的にtrainとtestを分離
@@ -115,14 +112,14 @@ def auto_scaling(df, auto_cols):
     df = pd.concat([train_tmp,test_tmp],axis = 0).reset_index(drop = True)
     return df
 
-#Min-Max Scaling
+#min-max scaling
 from sklearn.preprocessing import MinMaxScaler
 def minmac_scaling(df, minmax_cols):
     scaler = MinMaxScaler()
     df[minmax_cols] = scaler.fit_transform(df[minmax_cols])
     return df
 
-#Rank Gauss:NNだとAutoScalingより性能良いらしい
+#rank gauss:NNだとautoscalingより性能良いらしい
 from sklearn.preprocessing import QuantileTransformer
 def rankgauss_scaling(df,Rankgauss_cols):
     #一時的にtrainとtestを分離
@@ -137,4 +134,22 @@ def rankgauss_scaling(df,Rankgauss_cols):
 
     #trainとtestを再結合
     df = pd.concat([train_tmp,test_tmp],axis = 0).reset_index(drop = True)
+    return df
+
+#対数変換
+def log_transform(df, log_cols):
+    for col in log_cols:
+        df[col] = np.log1p(df[col])
+    return df    
+
+#定数倍
+def multiple_transform(df, multiple_cols, multiple):
+    for col in multiple_cols:
+        df[cols] = df[col].apply(lambda x: np.floor(x * multiple))
+    return df
+
+#Clipping
+def clipping(df,clip_cols,clip_min,clip_max):
+    for col in clip_cols:
+        df[cols] = df[col].clip(clip_min,clip_max)
     return df
