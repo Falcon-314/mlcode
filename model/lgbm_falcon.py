@@ -1,4 +1,9 @@
-def train_lgb(folds, fold):
+#関数のインポート
+#from lgbm_falcon import train_lgb, inference_lgb, lgbtuner
+
+import lightgbm as lgb
+import pickle
+def train_lgb(folds, fold, param, features, target_col):
 
     LOGGER.info(f"========== fold: {fold} training ==========")
 
@@ -11,12 +16,8 @@ def train_lgb(folds, fold):
     train_folds = folds.loc[trn_idx].reset_index(drop=True)
     valid_folds = folds.loc[val_idx].reset_index(drop=True)
 
-    trainData = lgb.Dataset(x_train_tmp,y_train_tmp)
-    validData = lgb.Dataset(x_valid,y_valid)
-    
-    y_pred_train = np.zeros((len(x_train), ))
-    y_pred_test = np.zeros((len(x_test), ))
-    feature_importance_df = pd.DataFrame()
+    trainData = lgb.Dataset(train_folds[features],train_folds[target_col])
+    validData = lgb.Dataset(valid_folds[features],valid_folds[target_col])
 
     # ====================================================
     # train
@@ -30,47 +31,81 @@ def train_lgb(folds, fold):
                   valid_sets = [trainData, validData],
                   num_boost_round = 10000,
                   early_stopping_rounds = 100,
+                  verbose_eval = -1)
+
+    # eval
+    y_pred_valid = model.predict(valid_folds[features])
+            
+    # scoring
+    score = get_score(valid_folds[target_col], y_pred_valid)
+
+    elapsed = time.time() - start_time
+
+    LOGGER.info(f'Score: {score} - time: {elapsed:.0f}s')
+
+    # modelのsave
+    pickle.dump(model, open(OUTPUT_DIR+f'lgbm_fold{fold}.sav','wb'))
+    
+    # 出力用データセットへの代入
+    valid_folds['preds'] = y_pred_valid
+    
+    #重要度の出力
+    fold_importance_df = pd.DataFrame()
+    fold_importance_df["Feature"] = features
+    fold_importance_df["importance"] = model.feature_importance()
+    fold_importance_df["fold"] = fold
+
+    return valid_folds, fold_importance_df
+
+def inference_lgb(test, features):
+    model = pickle.load(open(OUTPUT_DIR+f'lgbm_fold{fold}.sav','rb'))
+    y_preds = model.predict(test[features])
+    return y_preds
+
+!pip install optuna
+import optuna.integration.lightgbm as lgb_tuner
+def lgbtuner(folds, fold, param, features, target_col):
+    
+    LOGGER.info(f"parameter tunining")
+
+    # ====================================================
+    # dataset
+    # ====================================================
+    trn_idx = folds[folds['fold'] != fold].index
+    val_idx = folds[folds['fold'] == fold].index
+
+    train_folds = folds.loc[trn_idx].reset_index(drop=True)
+    valid_folds = folds.loc[val_idx].reset_index(drop=True)
+
+    trainData = lgb.Dataset(train_folds[features],train_folds[target_col])
+    validData = lgb.Dataset(valid_folds[features],valid_folds[target_col])
+
+    # ====================================================
+    # train
+    # ====================================================
+   
+    start_time = time.time()
+    
+    # train
+    model = lgb_tuner.train(param,
+                  trainData,
+                  valid_sets = [trainData, validData],
+                  num_boost_round = 10000,
+                  early_stopping_rounds = 100,
                   verbose_eval = -1,
                   show_progress_bar = False)
 
     # eval
-    y_pred_valid = model.predict(x_valid)
-    y_pred_train[valid_index] = y_pred_valid
+    y_pred_valid = model.predict(valid_folds[features])
             
     # scoring
-    score = get_score(y_valid, y_pred_valid)
+    score = get_score(valid_folds[target_col], y_pred_valid)
 
     elapsed = time.time() - start_time
 
-    LOGGER.info(f'MAE: {score} - time: {elapsed:.0f}s')
+    best_params = model.params
 
-    # modelのsave
-    torch.save({'model': model.state_dict(), 
-                        'preds': preds},
-                        OUTPUT_DIR+f'{CFG.model_name}_fold{fold}_best.pth')
-    
-    # 出力用データセットへの代入
-    valid_folds[[str(c) for c in range(5)]] = check_point['preds']
-    valid_folds['preds'] = check_point['preds'].argmax(1)
-    
-    #重要度の出力
-    fold_importance_df = pd.DataFrame()
-    fold_importance_df["Feature"] = x_train.columns
-    fold_importance_df["importance"] = model.feature_importance()
-    fold_importance_df["fold"] = fold_n
-    feature_importance_df = pd.concat([feature_importance_df, fold_importance_df], axis=0)
-
-    return valid_folds, feature_importance_df
-
-def inference_lgb():
-
-    for i in range(5):
-            #testへの予測
-            y_pred_test += model.predict(x_test)/nfolds
+    LOGGER.info(f'best_params: {best_params}')
+    LOGGER.info(f'Score: {score} - time: {elapsed:.0f}s')
   
-    return y_pred_test
-
-
-def lgbtuner():
-    
     return best_params
