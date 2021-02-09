@@ -30,7 +30,7 @@ def freq_encoding(df, freq_cols):
         df[c] = df[c].map(freq)
     return df
 
-#Target Encoding
+#Target encoding
 from sklearn.model_selection import KFold
 def target_encoding(df, target, target_cols, folds):
   
@@ -50,8 +50,8 @@ def target_encoding(df, target, target_cols, folds):
             #trainとvalidに分割
             trn_idx = train[train['fold'] != fold].index
             val_idx = train[train['fold'] == fold].index
-            train_df = train.loc[trn_idx].reset_index(drop=True)
-            valid_df = train.loc[val_idx].reset_index(drop=True)
+            train_df = train.loc[trn_idx]
+            valid_df = train.loc[val_idx]
                     
             # validに対するtarget encoding
             data_tmp = pd.DataFrame({c: train_df[c], 'target': train_df[target]})
@@ -62,12 +62,12 @@ def target_encoding(df, target, target_cols, folds):
             # trainもKfoldで分割してtarget encodingする
             tmp = np.repeat(np.nan, train_df.shape[0])
             kf_encoding = KFold(n_splits=5, shuffle=True, random_state=37)
-            for idx_1, idx_2 in kf_encoding.split(train_df):
+            for idx_1, idx_2 in kf_encoding.split(train_df,train_df[c]):
                 target_mean = data_tmp.iloc[idx_1].groupby(c)['target'].mean()
                 tmp[idx_2] = train_df[c].iloc[idx_2].map(target_mean)
             train_df.loc[:, c] = tmp
             
-            #最終的なデータフレームに代入
+            #最終的なデータフレームに代入  変数名.isnull().sum()
             train_save.loc[trn_idx, c + f'_fold_{fold}'] = train_df.loc[:, c]
             train_save.loc[val_idx, c + f'_fold_{fold}'] = valid_df.loc[:, c]
             
@@ -89,7 +89,7 @@ def target_encoding(df, target, target_cols, folds):
         test = test.drop(c,axis = 1)
     
     #trainとtestを結合して復元する               
-    df = pd.concat([train_saved,test],axis = 0).reset_index(drop=True)
+    df = pd.concat([train_save,test],axis = 0).reset_index(drop=True)
                     
     return df
                   
