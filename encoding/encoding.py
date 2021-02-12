@@ -1,5 +1,8 @@
 #categorical encoding
 
+import numpy as np
+import pandas as pd
+
 #Label-Encoding
 from sklearn.preprocessing import LabelEncoder
 def label_encoding(df,label_cols):
