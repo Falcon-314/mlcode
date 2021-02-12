@@ -95,7 +95,16 @@ def target_encoding(df, target, target_cols, folds):
     df = pd.concat([train_save,test],axis = 0).reset_index(drop=True)
                     
     return df
-                  
+
+def target_encoding_preprocess(df, target_cols, trn_fold):
+    target_cols_encoded = [c + f'_fold_{fold}' for c in target_cols for fold in CFG.trn_fold]
+    base_columns = all_df.columns
+    for c in target_cols:
+        df = df.rename(columns = {c + f'_fold_{fold}':c})
+    features = [c for c in base_columns if c not in ['ID', CFG.target_col, 'part', 'fold'] + target_cols_encoded] + target_cols
+               
+    return folds, features
+    
 #numerical encoding
 
 #auto-scaling
