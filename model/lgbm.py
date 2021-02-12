@@ -62,7 +62,6 @@ def inference_lgb(test, features):
     y_preds = model.predict(test[features])
     return y_preds
 
-!pip install optuna
 import optuna.integration.lightgbm as lgb_tuner
 def lgbtuner(folds, fold, param, features, target_col):
     
