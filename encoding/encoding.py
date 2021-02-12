@@ -1,3 +1,6 @@
+import pandas as pd
+import numpy as np
+
 #categorical encoding
 
 #Label-Encoding
@@ -33,8 +36,6 @@ def freq_encoding(df, freq_cols):
 #Target encoding
 from sklearn.model_selection import KFold
 def target_encoding(df, target, target_cols, folds):
-    
-    import pandas as pd
   
     #trainとtestに分割  
     train = df.query('part == "train"')
