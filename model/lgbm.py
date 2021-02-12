@@ -3,10 +3,7 @@
 
 import lightgbm as lgb
 import pickle
-from utility import init_logger
-
-LOGGER = init_logger(OUTPUT_DIR)
-def train_lgb(folds, fold, param, features, target_col):
+def train_lgb(folds, fold, param, features, target_col, LOGGER):
 
     LOGGER.info(f"========== fold: {fold} training ==========")
 
