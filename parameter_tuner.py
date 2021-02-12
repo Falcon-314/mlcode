@@ -1,5 +1,10 @@
 import optuna.integration.lightgbm as lgb_tuner
-def lgbtuner(folds, fold, param, features, target_col):
+import lightgbm as lgb
+import pickle
+import time
+import pandas as pd
+
+def lgbtuner(folds, fold, param, features, target_col, LOGGER, get_score):
     
     LOGGER.info(f"parameter tunining")
 
