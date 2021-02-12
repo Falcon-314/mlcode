@@ -1,8 +1,8 @@
-#関数のインポート
-#from lgbm_falcon import train_lgb, inference_lgb, lgbtuner
-
 import lightgbm as lgb
 import pickle
+import time
+import pandas as pd
+
 def train_lgb(folds, fold, param, features, target_col, LOGGER):
 
     LOGGER.info(f"========== fold: {fold} training ==========")
