@@ -3,7 +3,7 @@ import pickle
 import time
 import pandas as pd
 
-def train_lgb(folds, fold, param, features, target_col, LOGGER, get_score):
+def train_lgb(folds, fold, param, features, target_col, LOGGER, get_score, OUTPUT_DIR):
 
     LOGGER.info(f"========== fold: {fold} training ==========")
 
