@@ -57,7 +57,7 @@ def train_lgb(folds, fold, param, features, target_col, LOGGER, get_score, OUTPU
 
     return valid_folds, fold_importance_df
 
-def inference_lgb(test, features):
+def inference_lgb(test, features, OUTPUT_DIR):
     model = pickle.load(open(OUTPUT_DIR+f'lgbm_fold{fold}.sav','rb'))
     y_preds = model.predict(test[features])
     return y_preds
