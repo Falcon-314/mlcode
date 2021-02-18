@@ -5,6 +5,7 @@ import math
 import time
 
 import numpy as np
+import tensorflow as tf
 
 from contextlib import contextmanager
 
@@ -28,13 +29,15 @@ def init_logger(OUTPUT_DIR = './'):
     logger.addHandler(handler2)
     return logger
 
-def seed_torch(seed=42):
+def seed_everything(seed=42):
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
     np.random.seed(seed)
+    tf.random.set_seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
+    
     
 class AverageMeter(object):
     """Computes and stores the average and current value"""
